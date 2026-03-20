@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIASGTWF Association</title>
+    <style>
+        :root { --p: #1a237e; --s: #28a745; --d: #dc3545; --accent: #ffd700; --b: #6c757d; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #333; text-align: center; }
+        .box { background: white; max-width: 450px; margin: 20px auto; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); }
+        input, select, textarea { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; text-decoration: none; display: block; }
+        .btn-p { background: var(--p); } .btn-s { background: var(--s); } .btn-d { background: var(--d); } .btn-b { background: var(--b); }
+        .hidden { display: none; }
+        .card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 10px; text-align: left; border-left: 4px solid var(--p); font-size: 14px; }
+        .logo-main { width: 110px; height: auto; margin-bottom: 10px; cursor: pointer; }
+        .sos-btn { background: red; color: white; font-size: 24px; font-weight: bold; padding: 20px; border-radius: 15px; border: none; width: 100px; height: 100px; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+<div class="box" id="homePage">
+    <img src="logo.png" alt="Logo" class="logo-main" onclick="handleSecret(event)" onerror="this.src='https://via.placeholder.com/120?text=AIASG'">
+    <h3 style="color: var(--p); margin: 0;">AIASGTWF ASSOCIATION</h3>
+    <p style="font-weight: bold; color: var(--accent); margin: 5px 0;">"UNITY IS STRENGTH"</p>
+    <hr>
+    <button class="btn btn-p" onclick="show('memberLogin')">Member Login</button>
+    <button class="btn btn-s" onclick="show('regForm')">Join Association (₹200)</button>
+</div>
+
+<div class="box hidden" id="memberLogin">
+    <h3>Member Login</h3>
+    <div style="display: flex; gap: 5px; align-items: center;">
+        <span style="font-size: 14px;">AIASG/2026/</span>
+        <input type="number" id="mem_id_num" placeholder="001" style="flex:1">
+    </div>
+    <input type="number" id="mem_mobile_login" placeholder="മൊബൈൽ നമ്പർ">
+    <button class="btn btn-p" onclick="loginMember()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="adminLogin">
+    <h3>Creator Login</h3>
+    <input type="password" id="admin_pass" placeholder="Password (0000)">
+    <button class="btn btn-p" onclick="adminAuth()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Cancel</button>
+</div>
+
+<div class="box hidden" id="adminDash">
+    <h3 style="color: var(--p);">Admin Dashboard</h3>
+    <div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
+        <div style="text-align: left;">
+            <p style="color:red; font-weight:bold;">SOS</p>
+            <p id="stat_apps">അപേക്ഷകൾ: 0</p>
+            <p id="stat_comps">പരാതികൾ: 0</p>
+        </div>
+        <button class="sos-btn" onclick="window.location.href='tel:112'">SOS</button>
+    </div>
+    <hr>
+    <div id="admin_content" style="text-align: left;"></div>
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<div class="box hidden" id="memberDash">
+    <h3 id="welcomeMsg" style="color: var(--s);">Welcome</h3>
+    <div class="card">
+        <h4>പരാതി സമർപ്പിക്കാൻ</h4>
+        <textarea id="comp_text" placeholder="പരാതി ഇവിടെ എഴുതുക..." rows="3"></textarea>
+        <button class="btn btn-p" onclick="submitComp()">Submit Complaint</button>
+    </div>
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<div class="box hidden" id="regForm">
+    <h3>Join Association</h3>
+    <input type="text" id="reg_name" placeholder="പേര്">
+    <input type="number" id="reg_mobile" placeholder="മൊബൈൽ നമ്പർ">
+    <input type="text" id="reg_agency" placeholder="ഏജൻസി">
+    <button class="btn btn-s" onclick="processReg()">Pay & Join</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('AIASG_V16_DB')) || {
+        members: { '001': { id: 'AIASG/2026/001', name: 'Bharath', mobile: '9446841656' } },
+        pending: [],
+        comps: []
+    };
+    let curUser = null;
+    let clickCount = 0;
+
+    function show(id) {
+        document.querySelectorAll('.box').forEach(b => b.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function save() { localStorage.setItem('AIASG_V16_DB', JSON.stringify(db)); }
+
+    // രഹസ്യമായി അഡ്മിൻ പാനലിൽ കയറാൻ ലോഗോയിൽ 5 വട്ടം അമർത്തുക
+    function handleSecret() {
+        clickCount++;
+        if(clickCount >= 5) { show('adminLogin'); clickCount = 0; }
+        setTimeout(() => clickCount = 0, 3000);
+    }
+
+    function loginMember() {
+        let id = document.getElementById('mem_id_num').value.padStart(3, '0');
+        let mob = document.getElementById('mem_mobile_login').value.trim();
+        if(db.members[id] && db.members[id].mobile === mob) {
+            curUser = db.members[id];
+            document.getElementById('welcomeMsg').innerText = "Welcome " + curUser.name;
+            show('memberDash');
+        } else alert("Invalid ID or Mobile!");
+    }
+
+    function processReg() {
+        let name = document.getElementById('reg_name').value;
+        let mob = document.getElementById('reg_mobile').value;
+        if(name && mob) {
+            db.pending.push({ name, mob, agency: document.getElementById('reg_agency').value });
+            save();
+            window.location.href = "upi://pay?pa=bharath199389@oksbi&pn=Bharath&am=200&cu=INR";
+            alert("Registration Submitted!"); show('homePage');
+        }
+    }
+
+    function adminAuth() {
+        if(document.getElementById('admin_pass').value === "0000") { renderAdmin(); show('adminDash'); }
+        else alert("Wrong Password!");
+    }
+
+    function renderAdmin() {
+        document.getElementById('stat_apps').innerText = "അപേക്ഷകൾ: " + db.pending.length;
+        document.getElementById('stat_comps').innerText = "പരാതികൾ: " + db.comps.length;
+        
+        let h = "<h4>Pending Approvals:</h4>";
+        db.pending.forEach((p, i) => {
+            h += `<div class='card'>${p.name} (${p.mob}) <button onclick="approve(${i})" style="cursor:pointer">Approve</button></div>`;
+        });
+        document.getElementById('admin_content').innerHTML = h;
+    }
+
+    function approve(i) {
+        let p = db.pending.splice(i, 1)[0];
+        let newId = Object.keys(db.members).length + 1;
+        let idStr = newId.toString().padStart(3, '0');
+        db.members[idStr] = { id: 'AIASG/2026/' + idStr, name: p.name, mobile: p.mob };
+        save(); renderAdmin(); alert("Approved! ID: AIASG/2026/" + idStr);
+    }
+
+    function submitComp() {
+        db.comps.push({ name: curUser.name, msg: document.getElementById('comp_text').value });
+        save(); alert("Complaint Submitted!"); show('homePage');
+    }
+</script>
+</body>
+                                                                           </html>
+  
