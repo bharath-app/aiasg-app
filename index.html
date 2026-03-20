@@ -3,25 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AIASGTWF Association App</title>
+    <title>AIASGTWF Association</title>
     <style>
         :root { --p: #1a237e; --s: #28a745; --d: #dc3545; --accent: #ffd700; }
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; color: #333; text-align: center; }
-        .box { background: white; max-width: 500px; margin: 20px auto; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); position: relative; }
-        input, select, textarea { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
-        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; transition: 0.3s; display: block; text-decoration: none; }
+        .box { background: white; max-width: 450px; margin: 20px auto; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); }
+        input, textarea { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ccc; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; text-decoration: none; display: block; }
         .btn-p { background: var(--p); } .btn-s { background: var(--s); } .btn-d { background: var(--d); } .btn-b { background: #6c757d; }
-        .btn-sm { padding: 8px 12px; font-size: 12px; width: auto; display: inline-block; margin: 5px; border-radius: 5px; }
+        .btn-sm { padding: 8px; font-size: 12px; width: auto; display: inline-block; margin-right: 5px; margin-top: 5px; }
         .hidden { display: none; }
-        .card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 10px; text-align: left; border-left: 4px solid var(--p); }
-        .sos-btn { background: red; color: white; border: none; border-radius: 50%; font-weight: bold; position: fixed; bottom: 20px; right: 20px; width: 70px; height: 70px; z-index: 100; cursor: pointer; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .logo-main { width: 120px; height: auto; margin-bottom: 15px; display: block; margin-left: auto; margin-right: auto; }
-        .qr-img { width: 200px; height: auto; margin: 15px auto; border: 1px solid #ddd; padding: 10px; display: block; }
+        .card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 10px; text-align: left; border-left: 4px solid var(--p); position: relative; }
+        .logo-main { width: 120px; height: auto; margin-bottom: 10px; }
+        .sos-float { background: red; color: white; border-radius: 50%; width: 65px; height: 65px; position: fixed; bottom: 20px; right: 20px; font-weight: bold; border: none; cursor: pointer; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
 
-<div class="sos-btn" onclick="window.location.href='tel:112'">SOS<br>112</div>
+<button class="sos-float" onclick="makeCall('112')">SOS<br>112</button>
 
 <div class="box" id="homePage">
     <img src="logo.png" alt="Logo" class="logo-main" onerror="this.src='https://via.placeholder.com/120?text=AIASG'">
@@ -31,6 +30,30 @@
     <button class="btn btn-p" onclick="show('memberLogin')">Member Login</button>
     <button class="btn btn-s" onclick="show('visitorForm')">Visitors Entry</button>
     <button class="btn btn-b" onclick="show('adminLogin')">Creator / Admin</button>
+</div>
+
+<div class="box hidden" id="payPage">
+    <h3>Membership Fees: ₹200</h3>
+    <img src="qr.png" style="width:180px;" onerror="this.src='https://via.placeholder.com/180?text=Scan+QR'">
+    <a href="upi://pay?pa=bharath199389@oksbi&pn=Bharath&am=200&cu=INR" class="btn btn-p" style="background: #4285F4;">Pay with GPay</a>
+    <hr>
+    <input type="file" accept="image/*">
+    <button class="btn btn-s" onclick="alert('നിങ്ങളുടെ അപേക്ഷ ലഭിച്ചു. പരിശോധനയ്ക്ക് ശേഷം ഐഡി ജനറേറ്റ് ചെയ്യുന്നതാണ്.'); show('homePage');">Submit Screenshot</button>
+    <button class="btn btn-b" onclick="show('visitorDash')">Back</button>
+</div>
+
+<div class="box hidden" id="memberDash">
+    <h3 id="welcomeMsg" style="color: var(--s);">Welcome</h3>
+    <div class="card">
+        <h4>അടിയന്തര സാഹചര്യം</h4>
+        <button class="btn btn-d" onclick="makeCall('9446841656')">അസോസിയേഷനെ അറിയിക്കുക</button>
+    </div>
+    <div class="card">
+        <h4>പരാതി സമർപ്പിക്കാൻ</h4>
+        <textarea id="comp_text" placeholder="പരാതി ഇവിടെ എഴുതുക..." rows="4"></textarea>
+        <button class="btn btn-p" onclick="submitComp()">Submit Complaint</button>
+    </div>
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
 </div>
 
 <div class="box hidden" id="adminLogin">
@@ -43,57 +66,15 @@
 <div class="box hidden" id="adminDash">
     <h3>Admin Dashboard</h3>
     <div class="card" style="background: #eef;">
-        <h4>Add New Member</h4>
+        <h4>Add Member</h4>
         <input type="text" id="new_name" placeholder="പേര്">
-        <input type="number" id="new_id" placeholder="ID (ഉദാ: 002)">
-        <input type="number" id="new_mobile" placeholder="മൊബൈൽ നമ്പർ">
-        <button class="btn btn-s" onclick="addMember()">Add Member</button>
+        <input type="number" id="new_id" placeholder="ID (002)">
+        <input type="number" id="new_mobile" placeholder="മൊബൈൽ">
+        <button class="btn btn-s" onclick="addMember()">Add</button>
     </div>
     <hr>
-    <h4>Members & Complaints</h4>
     <div id="admin_content" style="text-align: left;"></div>
     <button class="btn btn-b" onclick="show('homePage')">Logout</button>
-</div>
-
-<div class="box hidden" id="payPage">
-    <h3>Membership Fees: ₹200</h3>
-    <p>ഈ QR കോഡ് സ്കാൻ ചെയ്ത് പണമടയ്ക്കുക</p>
-    <img src="qr.png" alt="QR Code" class="qr-img" onerror="this.src='https://via.placeholder.com/200?text=Upload+qr.png'">
-    <p>UPI ID: <b>bharath199389@oksbi</b></p>
-    <hr>
-    <p style="font-size: 14px; color: var(--d);">പണമടച്ച ശേഷം സ്ക്രീൻഷോട്ട് അപ്‌ലോഡ് ചെയ്യുക:</p>
-    <input type="file" accept="image/*">
-    <button class="btn btn-s" onclick="alert('Submitted! ID will be generated soon.'); show('homePage');">Submit Screenshot</button>
-    <button class="btn btn-b" onclick="show('visitorDash')">Back</button>
-</div>
-
-<div class="box hidden" id="memberDash">
-    <h3 style="color: var(--s);">Welcome Member</h3>
-    <div class="card">
-        <h4>അടിയന്തര സാഹചര്യം</h4>
-        <button class="btn btn-d" onclick="window.location.href='tel:9446841656'">അസോസിയേഷനെ അറിയിക്കുക</button>
-    </div>
-    <div class="card">
-        <h4>പരാതി സമർപ്പിക്കാൻ</h4>
-        <textarea id="comp_text" placeholder="പരാതി ഇവിടെ എഴുതുക..." rows="4"></textarea>
-        <button class="btn btn-p" onclick="submitComp()">Submit Complaint</button>
-    </div>
-    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
-</div>
-
-<div class="box hidden" id="visitorForm">
-    <h3>Visitors Entry</h3>
-    <input type="text" id="v_name" placeholder="പേര്">
-    <input type="number" id="v_mobile" placeholder="മൊബൈൽ നമ്പർ">
-    <button class="btn btn-s" onclick="show('visitorDash')">Next</button>
-    <button class="btn btn-b" onclick="show('homePage')">Back</button>
-</div>
-
-<div class="box hidden" id="visitorDash">
-    <h3>അസോസിയേഷൻ ലക്ഷ്യങ്ങൾ</h3>
-    <div class="card"><p>സുരക്ഷാ ജീവനക്കാരുടെ ക്ഷേമത്തിനായി നമ്മൾ ഒന്നിക്കുന്നു.</p></div>
-    <button class="btn btn-d" onclick="show('payPage')">അസോസിയേഷനിൽ അംഗമാകുക</button>
-    <button class="btn btn-b" onclick="show('visitorForm')">Back</button>
 </div>
 
 <div class="box hidden" id="memberLogin">
@@ -107,13 +88,51 @@
     <button class="btn btn-b" onclick="show('homePage')">Back</button>
 </div>
 
+<div class="box hidden" id="visitorForm">
+    <h3>Visitors Entry</h3>
+    <input type="text" id="v_name" placeholder="പേര്">
+    <input type="number" id="v_mobile" placeholder="മൊബൈൽ">
+    <button class="btn btn-s" onclick="show('visitorDash')">Next</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="visitorDash">
+    <h3>Association Goals</h3>
+    <div class="card"><p>സുരക്ഷാ ജീവനക്കാരുടെ ക്ഷേമത്തിനായി ഒന്നിക്കുന്നു.</p></div>
+    <button class="btn btn-d" onclick="show('payPage')">മെമ്പർഷിപ്പ് എടുക്കൂ</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
 <script>
-    let db = JSON.parse(localStorage.getItem('AIASG_FINAL_V9')) || {
+    let db = JSON.parse(localStorage.getItem('AIASG_SECURE_V11')) || {
         members: { '001': { id: 'AIASG/2026/001', name: 'Bharath', mobile: '9446841656' } },
         comps: []
     };
+    let curUser = null;
 
-    function show(id) { document.querySelectorAll('.box').forEach(b => b.classList.add('hidden')); document.getElementById(id).classList.remove('hidden'); }
+    function show(id) { 
+        document.querySelectorAll('.box').forEach(b => b.classList.add('hidden')); 
+        document.getElementById(id).classList.remove('hidden'); 
+    }
+
+    function makeCall(num) { window.open('tel:' + num, '_system'); }
+
+    function loginMember() {
+        let n = document.getElementById('mem_id_num').value.padStart(3, '0');
+        let m = document.getElementById('mem_mobile').value.trim();
+        if(db.members[n] && db.members[n].mobile === m) {
+            curUser = db.members[n];
+            document.getElementById('welcomeMsg').innerText = "Welcome " + curUser.name;
+            show('memberDash');
+        } else alert("തെറ്റായ വിവരങ്ങൾ!");
+    }
+
+    function submitComp() {
+        db.comps.push({ name: curUser.name, msg: document.getElementById('comp_text').value, status: 'Pending' });
+        save(); 
+        alert("നിങ്ങളുടെ പരാതി ലഭിച്ചിട്ടുണ്ട്. ഞങ്ങളുടെ പ്രതിനിധി ഉടനെ താങ്കളെ കോണ്ടാക്റ്റ് ചെയ്യുന്നതായിരിക്കും."); 
+        show('homePage');
+    }
 
     function adminAuth() {
         if(document.getElementById('admin_pass').value === "0000") { renderAdmin(); show('adminDash'); }
@@ -126,40 +145,34 @@
         let mob = document.getElementById('new_mobile').value;
         if(name && id && mob) {
             db.members[id] = { id: 'AIASG/2026/'+id, name: name, mobile: mob };
-            save(); renderAdmin(); alert("Member Added!");
+            save(); renderAdmin(); alert("മെമ്പറെ ചേർത്തു!");
         }
     }
 
-    function deleteMem(id) {
-        if(confirm("ഈ മെമ്പറെ നീക്കം ചെയ്യണോ?")) { delete db.members[id]; save(); renderAdmin(); }
+    function solveComp(i) {
+        alert("പരാതി പരിഹരിച്ചു. മെമ്പറെ വിവരമറിയിച്ചു.");
+        db.comps.splice(i, 1);
+        save(); renderAdmin();
+    }
+
+    function deleteComp(i) {
+        if(confirm("ഈ പരാതി ഡിലീറ്റ് ചെയ്യണോ?")) {
+            db.comps.splice(i, 1);
+            save(); renderAdmin();
+        }
     }
 
     function renderAdmin() {
-        let h = "<b>Members List:</b>";
-        Object.keys(db.members).forEach(k => {
-            let m = db.members[k];
-            h += `<div class='card'>${m.id} - ${m.name} <button class='btn-sm btn-d' onclick="deleteMem('${k}')">Delete</button></div>`;
-        });
-        h += "<br><b>Complaints:</b>";
+        let h = "<b>പരാതികൾ:</b>";
         db.comps.forEach((c, i) => {
-            h += `<div class='card'><b>${c.name}:</b> ${c.msg}</div>`;
+            h += `<div class='card'><b>${c.name}:</b> ${c.msg} 
+            <br><button class='btn-sm btn-s' onclick="solveComp(${i})">Solve & Notify</button>
+            <button class='btn-sm btn-d' onclick="deleteComp(${i})">Delete</button></div>`;
         });
         document.getElementById('admin_content').innerHTML = h;
     }
 
-    function loginMember() {
-        let n = document.getElementById('mem_id_num').value.padStart(3, '0');
-        let m = document.getElementById('mem_mobile').value.trim();
-        if(db.members[n] && db.members[n].mobile === m) { curUser = db.members[n]; show('memberDash'); }
-        else alert("Login Failed!");
-    }
-
-    function submitComp() {
-        db.comps.push({ name: curUser.name, msg: document.getElementById('comp_text').value });
-        save(); alert("Complaint Submitted!"); show('homePage');
-    }
-
-    function save() { localStorage.setItem('AIASG_FINAL_V9', JSON.stringify(db)); }
+    function save() { localStorage.setItem('AIASG_SECURE_V11', JSON.stringify(db)); }
 </script>
 </body>
 </html>
