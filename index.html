@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIASGTWF Association</title>
+    <style>
+        :root { --p: #1a237e; --s: #28a745; --d: #dc3545; --accent: #ffd700; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; text-align: center; color: #333; }
+        .box { background: white; max-width: 450px; margin: 15px auto; padding: 25px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); position: relative; }
+        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; display: block; transition: 0.3s; }
+        .btn-p { background: var(--p); } .btn-s { background: var(--s); } .btn-d { background: var(--d); } .btn-b { background: #6c757d; }
+        .hidden { display: none; }
+        .logo-main { width: 110px; margin-bottom: 15px; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+        .card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 12px; text-align: left; border-left: 5px solid var(--p); font-size: 14px; line-height: 1.6; }
+        .status-tag { padding: 4px 8px; border-radius: 5px; font-size: 12px; font-weight: bold; color: white; }
+        .notif-bar { background: #fff9c4; border: 1px solid #fbc02d; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background: var(--p); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="box" id="homePage">
+    <img src="logo.png" class="logo-main" onclick="adminTrigger()" onerror="this.src='https://via.placeholder.com/120?text=LOGO'">
+    <h2 style="color: var(--p); margin: 0;">AIASGTWF ASSOCIATION</h2>
+    <p style="color: var(--accent); font-weight: bold;">"UNITY IS STRENGTH"</p>
+    <hr>
+    <button class="btn btn-p" onclick="show('memberLogin')">Member Login</button>
+    <button class="btn btn-s" onclick="show('regForm')">New Registration</button>
+</div>
+
+<div class="box hidden" id="regForm">
+    <h3>Registration</h3>
+    <input type="text" id="r_name" placeholder="Member Name">
+    <input type="number" id="r_mob" placeholder="Mobile Number">
+    <input type="text" id="r_agency" placeholder="Agency Name">
+    <input type="text" id="r_place" placeholder="District/Place">
+    <input type="number" id="r_sal" placeholder="Monthly Salary">
+    <select id="r_esi"><option value="">ESI/PF ഉണ്ടോ?</option><option value="ഉണ്ട്">ഉണ്ട്</option><option value="ഇല്ല">ഇല്ല</option></select>
+    
+    <div style="background: #eee; padding: 10px; border-radius: 10px; margin-top: 10px;">
+        <p style="font-size: 12px;">Scan to Pay ₹200 (Membership Fee)</p>
+        <img src="qr.png" style="width: 150px;" onerror="this.src='https://via.placeholder.com/150?text=QR+CODE'">
+    </div>
+    
+    <button class="btn btn-s" onclick="submitRegistration()">Pay ₹200 & Join</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="thankYouPage">
+    <h2 style="color: var(--s);">Thank You!</h2>
+    <p>നിങ്ങളുടെ അപേക്ഷ ലഭിച്ചു. ₹200 അടച്ചു കഴിഞ്ഞെങ്കിൽ തിരികെ വരിക.</p>
+    <p style="background: #e1f5fe; padding: 15px; border-radius: 10px; font-weight: bold;">
+        താങ്കളുടെ ID ജനറേറ്റ് ചെയ്യുന്നു. അല്പസമയം കാത്തിരിക്കുക...
+    </p>
+    <button class="btn btn-p" onclick="show('homePage')">Go Back to Home</button>
+</div>
+
+<div class="box hidden" id="memberLogin">
+    <h3>Member Login</h3>
+    <input type="text" id="l_id" placeholder="Login ID (e.g., ID-001)">
+    <input type="number" id="l_mob" placeholder="Registered Mobile Number">
+    <button class="btn btn-p" onclick="memberAuth()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="memberDash">
+    <div id="m_notif" class="notif-bar hidden"></div>
+    <h3 id="m_welcome">Welcome</h3>
+    <div id="m_details" class="card"></div>
+    
+    <div class="card">
+        <h4>പരാതി സമർപ്പിക്കാൻ</h4>
+        <textarea id="m_comp" placeholder="നിങ്ങളുടെ പരാതി ഇവിടെ രേഖപ്പെടുത്തുക..." rows="3"></textarea>
+        <button class="btn btn-p" onclick="sendComplaint()">Submit Complaint</button>
+    </div>
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<div class="box hidden" id="adminLogin">
+    <h3>Creator Login</h3>
+    <input type="password" id="a_pass" placeholder="Password (1993)">
+    <button class="btn btn-p" onclick="adminAuth()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Cancel</button>
+</div>
+
+<div class="box hidden" id="adminDash" style="max-width: 600px;">
+    <h3>Admin Dashboard</h3>
+    <div id="stats_area" style="font-size: 12px; margin-bottom: 10px; font-weight: bold; color: var(--p);"></div>
+    
+    <button class="btn btn-s" onclick="show('addGuard')">Add New Guard</button>
+    <hr>
+    
+    <h4 style="color: var(--p);">Guard List</h4>
+    <div id="guard_list_table" style="overflow-x: auto;"></div>
+    
+    <hr>
+    <h4 style="color: var(--d);">Active Complaints</h4>
+    <div id="active_comps"></div>
+    
+    <h4 style="color: var(--s);">Solved History</h4>
+    <div id="solved_comps"></div>
+    
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<div class="box hidden" id="addGuard">
+    <h3>Add New Guard</h3>
+    <input type="text" id="ag_name" placeholder="Name">
+    <input type="number" id="ag_mob" placeholder="Mobile">
+    <input type="text" id="ag_place" placeholder="Place">
+    <input type="text" id="ag_agency" placeholder="Agency Name">
+    <input type="number" id="ag_sal" placeholder="Salary">
+    <input type="text" id="ag_esi" placeholder="ESI/PF Status">
+    <button class="btn btn-s" onclick="saveGuard()">Save & Generate ID</button>
+    <button class="btn btn-b" onclick="show('adminDash')">Back</button>
+</div>
+
+<script>
+    // INITIAL DATABASE
+    let appData = JSON.parse(localStorage.getItem('AIASG_V18_DB')) || {
+        members: {},
+        pending_regs: [],
+        complaints: [],
+        solved: [],
+        notifications: {}
+    };
+
+    let curUser = null;
+    let clickCount = 0;
+
+    function show(id) {
+        document.querySelectorAll('.box').forEach(b => b.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function save() { localStorage.setItem('AIASG_V18_DB', JSON.stringify(appData)); }
+
+    // SECRET ADMIN TRIGGER
+    function adminTrigger() {
+        clickCount++;
+        if(clickCount >= 5) { show('adminLogin'); clickCount = 0; }
+        setTimeout(() => clickCount = 0, 3000);
+    }
+
+    // REGISTRATION PROCESS
+    function submitRegistration() {
+        let r = {
+            name: document.getElementById('r_name').value,
+            mob: document.getElementById('r_mob').value,
+            agency: document.getElementById('r_agency').value,
+            place: document.getElementById('r_place').value,
+            salary: document.getElementById('r_sal').value,
+            esi: document.getElementById('r_esi').value,
+            date: new Date().toLocaleDateString()
+        };
+        if(r.name && r.mob) {
+            appData.pending_regs.push(r); save();
+            window.location.href = `upi://pay?pa=bharath199389@oksbi&pn=Bharath&am=200&cu=INR&tn=AIASG_Reg`;
+            show('thankYouPage');
+        } else alert("വിവരങ്ങൾ പൂരിപ്പിക്കുക.");
+    }
+
+    // ADMIN AUTH
+    function adminAuth() {
+        if(document.getElementById('a_pass').value === "1993") { renderAdmin(); show('adminDash'); }
+        else alert("Wrong Password!");
+    }
+
+    // SAVE GUARD (BY ADMIN)
+    function saveGuard() {
+        let name = document.getElementById('ag_name').value;
+        let mob = document.getElementById('ag_mob').value;
+        if(name && mob) {
+            let id = "ID-" + (Object.keys(appData.members).length + 101);
+            appData.members[id] = {
+                id: id, name: name, mob: mob, place: document.getElementById('ag_place').value,
+                agency: document.getElementById('ag_agency').value,
+                salary: document.getElementById('ag_sal').value,
+                esi: document.getElementById('ag_esi').value,
+                status: 'Active'
+            };
+            save(); renderAdmin(); show('adminDash');
+            alert("Guard Added! ID is: " + id);
+        }
+    }
+
+    // RENDER ADMIN DASHBOARD
+    function renderAdmin() {
+        // District Stats
+        let districts = {};
+        Object.values(appData.members).forEach(m => {
+            districts[m.place] = (districts[m.place] || 0) + 1;
+        });
+        let statText = "Members by Place: " + JSON.stringify(districts).replace(/[{}]/g, "");
+        document.getElementById('stats_area').innerText = statText;
+
+        // Guard List Table
+        let table = `<table><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Status</th><th>Action</th></tr>`;
+        Object.values(appData.members).forEach(m => {
+            let btn = m.status === 'Active' ? 
+                `<button onclick="toggleStatus('${m.id}')" style="background:orange; color:white; border:none; padding:3px;">Resign</button>` : 
+                `<b>Resigned</b>`;
+            table += `<tr><td>${m.id}</td><td>${m.name}</td><td>${m.mob}</td><td>${m.status}</td><td>${btn}</td></tr>`;
+        });
+        document.getElementById('guard_list_table').innerHTML = table + "</table>";
+
+        // Active Complaints
+        let cHtml = "";
+        appData.complaints.forEach((c, i) => {
+            cHtml += `<div class='card'><b>${c.name} (${c.id}):</b> ${c.msg}<br>
+            <input id='rep_${i}' placeholder='Reply...'>
+            <button class='btn-s btn' style='padding:5px; width:auto;' onclick='solveComp(${i})'>Solve & Notify</button></div>`;
+        });
+        document.getElementById('active_comps').innerHTML = cHtml || "No active complaints.";
+
+        // Solved History
+        let sHtml = "";
+        appData.solved.forEach(s => {
+            sHtml += `<div class='card' style='border-left-color:green;'><b>${s.name}:</b> ${s.msg}<br><span style='color:green;'>Ans: ${s.reply}</span></div>`;
+        });
+        document.getElementById('solved_comps').innerHTML = sHtml || "No history.";
+    }
+
+    function toggleStatus(id) {
+        if(confirm("ഈ അംഗം പ്രവർത്തനം നിർത്തിയോ? ഈ ID പിന്നീട് ഉപയോഗിക്കാൻ കഴിയില്ല.")) {
+            appData.members[id].status = 'Resigned'; save(); renderAdmin();
+        }
+    }
+
+    function solveComp(i) {
+        let reply = document.getElementById('rep_'+i).value || "പരിഹരിച്ചു.";
+        let comp = appData.complaints.splice(i, 1)[0];
+        appData.solved.push({ ...comp, reply: reply });
+        appData.notifications[comp.mob] = reply;
+        save(); renderAdmin();
+    }
+
+    // MEMBER AUTH
+    function memberAuth() {
+        let id = document.getElementById('l_id').value.trim();
+        let mob = document.getElementById('l_mob').value.trim();
+        let user = appData.members[id];
+        if(user && user.mob === mob) {
+            if(user.status === 'Resigned') { alert("ഈ ID നിർജ്ജീവമാണ് (Resigned)."); return; }
+            curUser = user; renderMemberDash(); show('memberDash');
+        } else alert("Invalid ID or Mobile!");
+    }
+
+    function renderMemberDash() {
+        document.getElementById('m_welcome').innerText = "Welcome, " + curUser.name;
+        document.getElementById('m_details').innerHTML = `
+            <b>ID:</b> ${curUser.id}<br><b>Salary:</b> ${curUser.salary}<br>
+            <b>Agency:</b> ${curUser.agency}<br><b>ESI/PF:</b> ${curUser.esi}
+        `;
+        let n = appData.notifications[curUser.mob];
+        let nBar = document.getElementById('m_notif');
+        if(n) { nBar.innerText = "🔔 Notification: " + n; nBar.classList.remove('hidden'); }
+        else nBar.classList.add('hidden');
+    }
+
+    function sendComplaint() {
+        let msg = document.getElementById('m_comp').value;
+        if(msg) {
+            appData.complaints.push({ id: curUser.id, name: curUser.name, mob: curUser.mob, msg: msg });
+            save(); alert("നിങ്ങളുടെ പരാതി ലഭിച്ചിട്ടുണ്ട്. പ്രതിനിധി ഉടനെ ബന്ധപ്പെടും.");
+            document.getElementById('m_comp').value = "";
+        }
+    }
+</script>
+</body>
+  </html>
+
