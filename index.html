@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIASGTWF Association</title>
+    <style>
+        :root { --p: #1a237e; --s: #28a745; --d: #dc3545; --accent: #ffd700; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; text-align: center; }
+        .box { background: white; max-width: 400px; margin: 20px auto; padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; color: white; font-weight: bold; cursor: pointer; margin-top: 10px; display: block; text-decoration: none; }
+        .btn-p { background: var(--p); } .btn-s { background: var(--s); } .btn-d { background: var(--d); } .btn-b { background: #6c757d; }
+        .hidden { display: none; }
+        .logo-main { width: 100px; cursor: pointer; margin-bottom: 10px; }
+        .card { background: #f9f9f9; padding: 10px; margin: 10px 0; border-radius: 8px; text-align: left; border-left: 4px solid var(--p); }
+    </style>
+</head>
+<body>
+
+<div id="homePage" class="box">
+    <img src="logo.png" class="logo-main" onclick="adminClick()" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
+    <h3 style="color: var(--p); margin: 0;">AIASGTWF ASSOCIATION</h3>
+    <p style="color: var(--accent); font-weight: bold; font-size: 12px;">"UNITY IS STRENGTH"</p>
+    <hr>
+    <button class="btn btn-p" onclick="showPage('memberLogin')">Member Login</button>
+    <button class="btn btn-s" onclick="showPage('regForm')">Join Association (₹200)</button>
+</div>
+
+<div id="memberLogin" class="box hidden">
+    <h3>Member Login</h3>
+    <div style="display: flex; align-items: center; gap: 5px;">
+        <span style="font-size: 12px;">AIASG/2026/</span>
+        <input type="number" id="login_id" placeholder="001" style="flex:1">
+    </div>
+    <input type="number" id="login_mob" placeholder="മൊബൈൽ നമ്പർ">
+    <button class="btn btn-p" onclick="doLogin()">Login</button>
+    <button class="btn btn-b" onclick="showPage('homePage')">Back</button>
+</div>
+
+<div id="regForm" class="box hidden">
+    <h3>New Registration</h3>
+    <input type="text" id="r_name" placeholder="പേര്">
+    <input type="number" id="r_mob" placeholder="മൊബൈൽ നമ്പർ">
+    <input type="text" id="r_agency" placeholder="ഏജൻസി">
+    <button class="btn btn-s" onclick="doReg()">Pay ₹200 & Join</button>
+    <button class="btn btn-b" onclick="showPage('homePage')">Back</button>
+</div>
+
+<div id="memberDash" class="box hidden">
+    <h3 id="userTitle" style="color: var(--s);">Welcome</h3>
+    <div id="notifArea"></div>
+    <div class="card">
+        <h4>പരാതികൾ</h4>
+        <textarea id="msg_text" placeholder="ഇവിടെ ടൈപ്പ് ചെയ്യുക..."></textarea>
+        <button class="btn btn-p" onclick="sendComp()">Submit</button>
+    </div>
+    <button class="btn btn-b" onclick="showPage('homePage')">Logout</button>
+</div>
+
+<div id="adminLogin" class="box hidden">
+    <h3>Creator Login</h3>
+    <input type="password" id="admin_pass" placeholder="Password (0000)">
+    <button class="btn btn-p" onclick="doAdminAuth()">Login</button>
+    <button class="btn btn-b" onclick="showPage('homePage')">Back</button>
+</div>
+
+<div id="adminDash" class="box hidden">
+    <h3>Admin Dashboard</h3>
+    <button class="btn btn-d" onclick="window.location.href='tel:112'">SOS 112</button>
+    <hr>
+    <div id="admin_list" style="text-align: left;"></div>
+    <button class="btn btn-b" onclick="showPage('homePage')">Logout</button>
+</div>
+
+<script>
+    // ലളിതമായ ഡാറ്റാബേസ്
+    let data = JSON.parse(localStorage.getItem('AIASG_V17')) || {
+        users: { "001": { name: "Bharath", mob: "9446841656" } },
+        pending: [],
+        comps: [],
+        notifs: {}
+    };
+
+    let currentUser = null;
+    let aClick = 0;
+
+    function save() { localStorage.setItem('AIASG_V17', JSON.stringify(data)); }
+
+    function showPage(id) {
+        document.querySelectorAll('.box').forEach(b => b.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    // രഹസ്യ അഡ്മിൻ ലോഗിൻ (ലോഗോയിൽ 5 വട്ടം അമർത്തുക)
+    function adminClick() {
+        aClick++;
+        if(aClick >= 5) { showPage('adminLogin'); aClick = 0; }
+        setTimeout(() => aClick = 0, 3000);
+    }
+
+    function doLogin() {
+        let id = document.getElementById('login_id').value.padStart(3, '0');
+        let mob = document.getElementById('login_mob').value;
+        if(data.users[id] && data.users[id].mob === mob) {
+            currentUser = data.users[id];
+            document.getElementById('userTitle').innerText = "Hello, " + currentUser.name;
+            checkNotif(mob);
+            showPage('memberDash');
+        } else { alert("ID അല്ലെങ്കിൽ മൊബൈൽ നമ്പർ തെറ്റാണ്!"); }
+    }
+
+    function doReg() {
+        let name = document.getElementById('r_name').value;
+        let mob = document.getElementById('r_mob').value;
+        if(name && mob) {
+            data.pending.push({ name, mob, agency: document.getElementById('r_agency').value });
+            save();
+            window.location.href = "upi://pay?pa=bharath199389@oksbi&pn=Bharath&am=200&cu=INR";
+            alert("അപേക്ഷ സമർപ്പിച്ചു. പേയ്‌മെന്റ് പൂർത്തിയാക്കുക.");
+            showPage('homePage');
+        }
+    }
+
+    function doAdminAuth() {
+        if(document.getElementById('admin_pass').value === "0000") { loadAdmin(); showPage('adminDash'); }
+        else { alert("തെറ്റായ പാസ്‌വേഡ്!"); }
+    }
+
+    function loadAdmin() {
+        let h = "<b>അപേക്ഷകൾ:</b>";
+        data.pending.forEach((p, i) => {
+            h += `<div class='card'>${p.name} (${p.mob}) <button onclick="approve(${i})">Approve</button></div>`;
+        });
+        h += "<br><b>പരാതികൾ:</b>";
+        data.comps.forEach((c, i) => {
+            h += `<div class='card'><b>${c.name}:</b> ${c.msg} <br>
+            <input id='re_${i}' placeholder='മറുപടി...'> <button onclick="solve(${i})">Solve</button></div>`;
+        });
+        document.getElementById('admin_list').innerHTML = h;
+    }
+
+    function approve(i) {
+        let p = data.pending.splice(i, 1)[0];
+        let id = (Object.keys(data.users).length + 1).toString().padStart(3, '0');
+        data.users[id] = p;
+        save(); loadAdmin(); alert("അംഗീകരിച്ചു! ID: AIASG/2026/" + id);
+    }
+
+    function sendComp() {
+        data.comps.push({ name: currentUser.name, mob: currentUser.mob, msg: document.getElementById('msg_text').value });
+        save(); alert("പരാതി അയച്ചു."); showPage('homePage');
+    }
+
+    function solve(i) {
+        let reply = document.getElementById('re_'+i).value;
+        data.notifs[data.comps[i].mob] = reply || "പരിഹരിച്ചു.";
+        data.comps.splice(i, 1);
+        save(); loadAdmin();
+    }
+
+    function checkNotif(mob) {
+        let area = document.getElementById('notifArea');
+        if(data.notifs[mob]) {
+            area.innerHTML = `<div style='background:#fff9c4; padding:10px; border-radius:10px; margin-bottom:10px;'>
+            🔔 <b>അഡ്മിൻ:</b> ${data.notifs[mob]} <button onclick="this.parentElement.remove()">OK</button></div>`;
+        }
+    }
+</script>
+</body>
+  </html>
+  
