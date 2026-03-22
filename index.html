@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIASGTWF Association</title>
+    <style>
+        :root { --p: #1a237e; --s: #28a745; --d: #dc3545; --accent: #ffd700; --sky: #03a9f4; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; text-align: center; color: #333; }
+        .box { background: white; max-width: 480px; margin: 15px auto; padding: 20px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); position: relative; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; display: block; text-decoration: none; }
+        .btn-p { background: var(--p); } .btn-s { background: var(--s); } .btn-d { background: var(--d); } .btn-b { background: #6c757d; }
+        .hidden { display: none; }
+        .logo-main { width: 100px; margin-bottom: 10px; cursor: pointer; }
+        .card { background: #f9f9f9; padding: 12px; margin: 10px 0; border-radius: 12px; text-align: left; border-left: 5px solid var(--p); font-size: 14px; }
+        .user-photo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 2px solid var(--p); margin-bottom: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 11px; background: white; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; }
+        th { background: var(--p); color: white; }
+        .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin: 10px 0; }
+    </style>
+</head>
+<body>
+
+<div class="box" id="homePage">
+    <img src="logo.png" class="logo-main" onclick="adminTrigger()" onerror="this.src='https://via.placeholder.com/100?text=LOGO'">
+    <h3 style="color: var(--p); margin: 0;">AIASGTWF ASSOCIATION</h3>
+    <p style="color: var(--accent); font-weight: bold; font-size: 12px;">"UNITY IS STRENGTH"</p>
+    <hr>
+    <button class="btn btn-p" onclick="show('memberLogin')">Member Login</button>
+    <button class="btn btn-s" onclick="show('regForm')">New Registration</button>
+</div>
+
+<div class="box hidden" id="memberLogin">
+    <h3>Member Login</h3>
+    <div style="display: flex; align-items: center; gap: 5px;">
+        <span style="font-size: 12px;">AIASG/2026/</span>
+        <input type="number" id="l_id" placeholder="101" style="flex:1">
+    </div>
+    <input type="number" id="l_mob" placeholder="Mobile Number">
+    <button class="btn btn-p" onclick="memberAuth()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="memberDash">
+    <div id="m_notif" style="background:#fff9c4; padding:10px; border-radius:10px; margin-bottom:10px; display:none;"></div>
+    <div id="m_photo_area"></div>
+    <h3 id="m_welcome" style="color: var(--s); margin-top: 5px;">Welcome</h3>
+    
+    <button class="btn btn-d" onclick="window.location.href='tel:9446841656'">EMERGENCY SOS</button>
+
+    <div class="service-grid">
+        <a href="https://register.eshram.gov.in/" target="_blank" class="btn btn-sky" style="font-size: 12px; padding:10px; background:#03a9f4;">E-Shram</a>
+        <a href="https://passbook.epfindia.gov.in/MemberPassBook/Login" target="_blank" class="btn btn-p" style="font-size: 12px; padding:10px;">PF Balance</a>
+    </div>
+
+    <div id="m_details" class="card"></div>
+    
+    <div class="card">
+        <h4>പരാതി സമർപ്പിക്കാൻ</h4>
+        <textarea id="m_comp" placeholder="ഇവിടെ എഴുതുക..." rows="2"></textarea>
+        <button class="btn btn-p" onclick="sendComp()">Submit</button>
+    </div>
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<div class="box hidden" id="adminLogin">
+    <h3>Creator Login</h3>
+    <input type="password" id="a_pass" placeholder="Password (1993)">
+    <button class="btn btn-p" onclick="adminAuth()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Cancel</button>
+</div>
+
+<div class="box hidden" id="adminDash" style="max-width: 95%;">
+    <h3 style="color:var(--p)">Admin Dashboard</h3>
+    <div id="dist_stats" style="font-size: 11px; font-weight: bold; margin-bottom: 10px;"></div>
+    
+    <button class="btn btn-s" onclick="openAddGuard()">Add New Guard</button>
+    <hr>
+    <div id="guard_table_area" style="overflow-x:auto;"></div>
+    <hr>
+    <h4>Complaints</h4>
+    <div id="admin_comps"></div>
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<div class="box hidden" id="addGuardPage">
+    <h3 id="formTitle">Add Guard</h3>
+    <input type="hidden" id="edit_id">
+    <div style="text-align: left; font-size: 12px; color: #666;">Photo:</div>
+    <input type="file" id="ag_photo" accept="image/*" onchange="previewImage(this)">
+    <img id="img_preview" style="width: 60px; height: 60px; display:none; border-radius: 50%; margin: 5px auto;">
+    
+    <input type="text" id="ag_name" placeholder="Name">
+    <input type="number" id="ag_mob" placeholder="Mobile">
+    <input type="text" id="ag_place" placeholder="District">
+    <input type="text" id="ag_agency" placeholder="Agency Name">
+    <input type="number" id="ag_sal" placeholder="Salary">
+    <select id="ag_esi"><option value="Yes">ESI/PF ഉണ്ട്</option><option value="No">ESI/PF ഇല്ല</option></select>
+    
+    <button class="btn btn-s" id="saveBtn" onclick="saveGuard()">Save Guard</button>
+    <button class="btn btn-b" onclick="show('adminDash')">Back</button>
+</div>
+
+<div class="box hidden" id="regForm">
+    <h3>New Registration</h3>
+    <input type="text" id="r_name" placeholder="Name">
+    <input type="number" id="r_mob" placeholder="Mobile">
+    <input type="text" id="r_agency" placeholder="Agency">
+    <img src="qr.png" style="width: 120px;" onerror="this.src='https://via.placeholder.com/120?text=QR'">
+    <button class="btn btn-s" onclick="submitReg()">Pay ₹200 & Join</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<script>
+    let db = JSON.parse(localStorage.getItem('AIASG_V21_DB')) || {
+        members: { "101": { id: "101", name: "Bharath", mob: "9446841656", place: "Palakkad", agency: "Safeguard", salary: "15000", esi: "Yes", status: "Active", photo: "" } },
+        pending: [], comps: [], notifs: {}
+    };
+
+    let curUser = null;
+    let clicks = 0;
+    let tempPhoto = "";
+
+    function show(id) {
+        document.querySelectorAll('.box').forEach(b => b.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function save() { localStorage.setItem('AIASG_V21_DB', JSON.stringify(db)); }
+
+    function adminTrigger() {
+        clicks++;
+        if(clicks >= 5) { show('adminLogin'); clicks = 0; }
+        setTimeout(() => clicks = 0, 3000);
+    }
+
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                tempPhoto = e.target.result;
+                document.getElementById('img_preview').src = tempPhoto;
+                document.getElementById('img_preview').style.display = 'block';
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function openAddGuard() {
+        document.getElementById('formTitle').innerText = "Add Guard";
+        document.getElementById('edit_id').value = "";
+        document.getElementById('ag_name').value = "";
+        document.getElementById('ag_mob').value = "";
+        document.getElementById('img_preview').style.display = 'none';
+        tempPhoto = "";
+        show('addGuardPage');
+    }
+
+    function saveGuard() {
+        let id = document.getElementById('edit_id').value;
+        let name = document.getElementById('ag_name').value;
+        let mob = document.getElementById('ag_mob').value;
+        
+        if(!name || !mob) return alert("പേരും നമ്പറും നൽകണം");
+
+        if(!id) id = (Object.keys(db.members).length + 101).toString();
+
+        db.members[id] = {
+            id: id,
+            name: name,
+            mob: mob,
+            place: document.getElementById('ag_place').value,
+            agency: document.getElementById('ag_agency').value,
+            salary: document.getElementById('ag_sal').value,
+            esi: document.getElementById('ag_esi').value,
+            photo: tempPhoto || (db.members[id] ? db.members[id].photo : ""),
+            status: db.members[id] ? db.members[id].status : 'Active'
+        };
+        save(); renderAdmin(); show('adminDash');
+        alert("വിവരങ്ങൾ സേവ് ചെയ്തു! ID: AIASG/2026/" + id);
+    }
+
+    function editGuard(id) {
+        let m = db.members[id];
+        document.getElementById('formTitle').innerText = "Edit Guard";
+        document.getElementById('edit_id').value = id;
+        document.getElementById('ag_name').value = m.name;
+        document.getElementById('ag_mob').value = m.mob;
+        document.getElementById('ag_place').value = m.place;
+        document.getElementById('ag_agency').value = m.agency;
+        document.getElementById('ag_sal').value = m.salary;
+        document.getElementById('ag_esi').value = m.esi;
+        if(m.photo) {
+            document.getElementById('img_preview').src = m.photo;
+            document.getElementById('img_preview').style.display = 'block';
+            tempPhoto = m.photo;
+        }
+        show('addGuardPage');
+    }
+
+    function renderAdmin() {
+        let dists = {};
+        Object.values(db.members).forEach(m => dists[m.place] = (dists[m.place] || 0) + 1);
+        document.getElementById('dist_stats').innerText = "District Members: " + JSON.stringify(dists).replace(/[{}]/g, "");
+
+        let t = `<table><tr><th>ID</th><th>Name</th><th>Place</th><th>Action</th></tr>`;
+        Object.values(db.members).forEach(m => {
+            t += `<tr>
+                <td>${m.id}</td>
+                <td>${m.name}</td>
+                <td>${m.place}</td>
+                <td>
+                    <button onclick="editGuard('${m.id}')" style="background:blue;color:white;padding:3px;font-size:9px">Edit</button>
+                    <button onclick="resign('${m.id}')" style="background:orange;color:white;padding:3px;font-size:9px">${m.status=='Active'?'Resign':'Left'}</button>
+                </td>
+            </tr>`;
+        });
+        document.getElementById('guard_table_area').innerHTML = t + "</table>";
+    }
+
+    function resign(id) { if(confirm("Status മാറ്റണോ?")) { db.members[id].status = db.members[id].status=='Active'?'Resigned':'Active'; save(); renderAdmin(); } }
+
+    function adminAuth() {
+        if(document.getElementById('a_pass').value === "1993") { renderAdmin(); show('adminDash'); }
+        else alert("Wrong Password!");
+    }
+
+    function memberAuth() {
+        let id = document.getElementById('l_id').value.trim();
+        let mob = document.getElementById('l_mob').value.trim();
+        let u = db.members[id];
+        if(u && u.mob === mob) {
+            if(u.status === 'Resigned') return alert("This ID is Resigned!");
+            curUser = u;
+            document.getElementById('m_welcome').innerText = "Welcome, " + u.name;
+            document.getElementById('m_photo_area').innerHTML = u.photo ? `<img src="${u.photo}" class="user-photo">` : "";
+            document.getElementById('m_details').innerHTML = `<b>ID:</b> AIASG/2026/${u.id}<br><b>Salary:</b> ${u.salary}<br><b>Agency:</b> ${u.agency}<br><b>District:</b> ${u.place}`;
+            show('memberDash');
+        } else alert("Invalid ID or Mobile!");
+    }
+
+    function submitReg() { alert("പരാതി സമർപ്പിച്ചു. GPay ചെയ്യുക."); window.location.href="upi://pay?pa=bharath199389@oksbi&pn=Bharath&am=200&cu=INR"; }
+    function sendComp() { alert("പരാതി അയച്ചു."); show('homePage'); }
+</script>
+</body>
+</html>
+
