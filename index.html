@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIASGTWF Welfare App</title>
+    <style>
+        :root { --p: #1a237e; --s: #28a745; --d: #dc3545; --accent: #ffd700; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f7f6; text-align: center; }
+        .box { background: white; max-width: 450px; margin: 20px auto; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); }
+        input { width: 100%; padding: 15px; margin: 10px 0; border: 1px solid #ddd; border-radius: 12px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; text-decoration: none; display: block; }
+        .btn-p { background: var(--p); } .btn-s { background: var(--s); } .btn-b { background: #6c757d; }
+        .hidden { display: none; }
+        .logo { width: 100px; margin-bottom: 15px; cursor: pointer; }
+        .card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 12px; text-align: left; border-left: 5px solid var(--p); }
+    </style>
+</head>
+<body>
+
+<div class="box" id="homePage">
+    <img src="logo.png" class="logo" onclick="adminTrigger()" onerror="this.src='https://via.placeholder.com/100?text=AIASGTWF'">
+    <h2 style="color: var(--p); margin-bottom: 5px;">AIASGTWF</h2>
+    <p style="color: var(--accent); font-weight: bold; margin-top: 0;">"UNITY IS STRENGTH"</p>
+    <hr>
+    <button class="btn btn-p" onclick="show('memberLogin')">Member Login</button>
+    <button class="btn btn-s" onclick="show('regForm')">Join Association (₹200)</button>
+</div>
+
+<div class="box hidden" id="memberLogin">
+    <h3>Member Login</h3>
+    <input type="number" id="l_mob" placeholder="രജിസ്റ്റർ ചെയ്ത മൊബൈൽ നമ്പർ">
+    <button class="btn btn-p" id="loginBtn" onclick="fetchAndLogin()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="memberDash">
+    <h3 id="m_welcome" style="color: var(--s);">Welcome</h3>
+    <div id="m_details" class="card"></div>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button class="btn btn-p" style="font-size: 12px;" onclick="window.location.href='https://passbook.epfindia.gov.in/MemberPassBook/Login'">PF Balance</button>
+        <button class="btn btn-s" style="font-size: 12px;" onclick="window.location.href='https://register.eshram.gov.in/'">E-Shram</button>
+    </div>
+
+    <div class="card" style="border-left-color: var(--s);">
+        <h4>Wage Calculator</h4>
+        <input type="number" id="w_days" placeholder="ജോലി ചെയ്ത ദിവസങ്ങൾ" oninput="calcWage()">
+        <p id="w_res" style="font-weight:bold; color:var(--s); margin:0;"></p>
+    </div>
+
+    <div class="card">
+        <h4>പരാതികൾ സമർപ്പിക്കാൻ</h4>
+        <textarea id="m_comp" placeholder="ഇവിടെ എഴുതുക..." style="width:100%; border-radius:10px; padding:10px;"></textarea>
+        <button class="btn btn-p" onclick="sendComplaint()">Submit Complaint</button>
+    </div>
+
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<div class="box hidden" id="regForm">
+    <h3>New Registration</h3>
+    <input type="text" id="r_name" placeholder="Full Name">
+    <input type="number" id="r_mob" placeholder="Mobile Number">
+    <input type="text" id="r_place" placeholder="District">
+    <input type="text" id="r_agency" placeholder="Agency Name">
+    <p style="font-size: 12px; color: var(--d);">രജിസ്ട്രേഷൻ ഫീസായ ₹200 അടച്ച ശേഷം സബ്മിറ്റ് ചെയ്യുക.</p>
+    <button class="btn btn-s" onclick="submitRegistration()">Register & Pay</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="adminLogin">
+    <h3>Creator Login</h3>
+    <input type="password" id="a_pass" placeholder="Password">
+    <button class="btn btn-p" onclick="adminAuth()">Login</button>
+</div>
+
+<script>
+    // ലഭിച്ച Web App URL ഇവിടെ നൽകുക
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwAfW_Jy7VLdD__p0dL9JEaLIn-OvLSHn9a967fX7BpHc8a4tmb-81HrhcsGGncgT4w4Q/exec';
+    let clickCount = 0;
+
+    function show(id) {
+        document.querySelectorAll('.box').forEach(b => b.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function adminTrigger() {
+        clickCount++;
+        if(clickCount >= 5) { show('adminLogin'); clickCount = 0; }
+        setTimeout(() => clickCount = 0, 3000);
+    }
+
+    async function fetchAndLogin() {
+        const mob = document.getElementById('l_mob').value;
+        const btn = document.getElementById('loginBtn');
+        if(!mob) return alert("മൊബൈൽ നമ്പർ നൽകുക");
+        
+        btn.innerText = "Checking...";
+        try {
+            const response = await fetch(scriptURL);
+            const data = await response.json();
+            const user = data.find(row => row[2].toString() === mob.toString());
+
+            if(user) {
+                document.getElementById('m_welcome').innerText = "Hello, " + user[1];
+                document.getElementById('m_details').innerHTML = `<b>ID:</b> ${user[0]}<br><b>Place:</b> ${user[3]}<br><b>Agency:</b> ${user[4]}<br><b>Status:</b> ${user[6]}`;
+                show('memberDash');
+            } else {
+                alert("ഈ നമ്പർ ലിസ്റ്റിൽ ഇല്ല. ദയവായി അസോസിയേഷനിൽ രജിസ്റ്റർ ചെയ്യുക.");
+            }
+        } catch (e) {
+            alert("Database Error! ഇന്റർനെറ്റ് ഉണ്ടെന്ന് ഉറപ്പാക്കുക.");
+        }
+        btn.innerText = "Login";
+    }
+
+    async function submitRegistration() {
+        const name = document.getElementById('r_name').value;
+        const mob = document.getElementById('r_mob').value;
+        if(!name || !mob) return alert("എല്ലാ വിവരങ്ങളും നൽകുക");
+
+        const payload = {
+            action: "register",
+            id: "PENDING",
+            name: name,
+            mob: mob,
+            place: document.getElementById('r_place').value,
+            agency: document.getElementById('r_agency').value,
+            sal: "0"
+        };
+
+        try {
+            await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+            alert("രജിസ്ട്രേഷൻ വിജയകരമായി! അഡ്മിൻ അംഗീകരിച്ച ശേഷം നിങ്ങൾക്ക് ലോഗിൻ ചെയ്യാം.");
+            show('homePage');
+        } catch (e) { alert("Registration failed!"); }
+    }
+
+    async function sendComplaint() {
+        const msg = document.getElementById('m_comp').value;
+        if(!msg) return alert("പരാതി എഴുതുക");
+        const payload = { action: "complaint", mob: document.getElementById('l_mob').value, msg: msg };
+        try {
+            await fetch(scriptURL, { method: 'POST', body: JSON.stringify(payload) });
+            alert("പരാതി സമർപ്പിച്ചു.");
+            document.getElementById('m_comp').value = "";
+        } catch (e) { alert("Submission failed!"); }
+    }
+
+    function calcWage() {
+        let days = document.getElementById('w_days').value;
+        if(days) document.getElementById('w_res').innerText = "അർഹമായ ശമ്പളം: ₹" + (days * 675);
+    }
+
+    function adminAuth() {
+        if(document.getElementById('a_pass').value === "1993") {
+            window.open('https://docs.google.com/spreadsheets/d/1nhe8d_bMPOKroDxeoFQR_Ae94DDAsc74losfsfy7D7xpiTu33G60ztsu/edit', '_blank');
+        } else alert("Wrong Password!");
+    }
+</script>
+</body>
+  </html>
+  
