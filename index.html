@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIASGTWF Welfare Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #1a237e; --secondary: #2e7d32; --accent: #ffd700; --danger: #d32f2f; --bg: #f8f9fa; --card-bg: #ffffff; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: var(--bg); padding-bottom: 70px; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; border-radius: 0 0 25px 25px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1001; }
+        .logo-img { width: 45px; height: 45px; background: white; border-radius: 50%; border: 2px solid var(--accent); }
+        .back-btn { color: white; font-size: 20px; cursor: pointer; padding: 5px 15px; visibility: hidden; }
+        .back-btn.show { visibility: visible; }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+        .card { background: var(--card-bg); border-radius: 15px; padding: 18px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); border: 1px solid #eee; }
+        .id-card-modern { background: linear-gradient(135deg, #1a237e 0%, #283593 100%); color: white; border-radius: 15px; padding: 20px; border: 2px solid var(--accent); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-p { background: var(--primary); color: white; }
+        .btn-s { background: var(--secondary); color: white; }
+        .btn-d { background: var(--danger); color: white; }
+        .nav-bar { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; padding: 10px; border-top: 1px solid #ddd; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; font-size: 11px; color: #777; cursor: pointer; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .complaint-item { border-left: 5px solid var(--danger); padding: 10px; background: #fff; margin-bottom: 10px; border-radius: 5px; }
+        .complaint-item.solved { border-left-color: var(--secondary); background: #f1f8e9; }
+    </style>
+</head>
+<body>
+<header>
+    <div id="headerBack" class="back-btn" onclick="goBack()"><i class="fas fa-arrow-left"></i></div>
+    <img src="logo.png" class="logo-img" onclick="adminTrigger()" onerror="this.src='https://via.placeholder.com/45'">
+    <div style="width:45px;"></div>
+</header>
+<div class="container">
+    <div id="home" class="page active">
+        <div class="card" style="text-align:center;">
+            <h4>സ്വാഗതം ഭാരത് എ</h4>
+            <button class="btn btn-p" onclick="showPage('login')">Member Login</button>
+            <button class="btn btn-s" style="margin-top:10px;" onclick="showPage('register')">Join Association</button>
+        </div>
+        <div class="card"><marquee>പുതിയ അറിയിപ്പുകൾ ഇവിടെ കാണാം...</marquee></div>
+        <button class="btn btn-d" onclick="window.location.href='tel:9446841656'">SOS EMERGENCY</button>
+      </div>
+          <div id="register" class="page">
+        <div class="card">
+            <h3>അംഗമാകുക</h3>
+            <input type="text" id="r_name" placeholder="പേര്">
+            <input type="number" id="r_mob" placeholder="മൊബൈൽ">
+            <div style="text-align:center; padding:10px; background:#f9f9f9; border-radius:10px;">
+                <p style="font-size:11px;">Pay ₹200</p>
+                <img src="https://via.placeholder.com/100?text=QR+Code" style="width:100px;">
+                <button class="btn btn-p" onclick="alert('GPay Opening...')">Pay via GPay</button>
+            </div>
+            <button class="btn btn-s" style="margin-top:10px;" onclick="showPage('home')">Submit Registration</button>
+        </div>
+    </div>
+
+    <div id="dashboard" class="page">
+        <div class="id-card-modern">
+            <h2 id="m_name">USERNAME</h2>
+            <p id="m_id">AIASG/2026/001</p>
+            <p id="m_place">Location</p>
+        </div>
+        <div id="solveNotice" class="card" style="display:none; color:var(--secondary); border-left:5px solid var(--secondary);">
+            <p id="adminReply"></p>
+        </div>
+        <div class="card" style="margin-top:10px;">
+            <h4>Wage Tracker</h4>
+            <input type="number" id="w_days" placeholder="ദിവസങ്ങൾ" oninput="calcWage()">
+            <p id="w_res"></p>
+        </div>
+    </div>
+
+    <div id="reportPage" class="page">
+        <div class="card">
+            <h3>പരാതി നൽകുക</h3>
+            <textarea id="comp_text" rows="4" placeholder="വിശദമായി എഴുതുക"></textarea>
+            <button class="btn btn-p" onclick="submitComplaint()">Submit</button>
+        </div>
+    </div>
+
+    <div id="creatorDash" class="page">
+        <h3>Creator Dashboard</h3>
+        <div class="card">
+            <h5 style="color:var(--danger);">Pending (പരാതികൾ)</h5>
+            <div id="pendingList"></div>
+        </div>
+        <div class="card">
+            <h5 style="color:var(--secondary);">Solved (പരിഹരിച്ചവ)</h5>
+            <div id="solvedList"></div>
+        </div>
+    </div>
+
+    <div id="login" class="page">
+        <div class="card">
+            <h3>Login</h3>
+            <input type="number" id="l_mob" placeholder="മൊബൈൽ">
+            <button class="btn btn-p" onclick="handleLogin()">Login</button>
+        </div>
+    </div>
+</div>
+
+<div class="nav-bar" id="mainNav" style="display:none;">
+    <div class="nav-item active" id="navHome" onclick="showPage('dashboard')"><i class="fas fa-id-card"></i><br>ID Card</div>
+    <div class="nav-item" id="navReport" onclick="showPage('reportPage')"><i class="fas fa-edit"></i><br>Report</div>
+</div>
+
+<script>
+    let historyStack = ['home'];
+    let clickCount = 0;
+
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('headerBack').classList.toggle('show', id !== 'home');
+        if(id !== historyStack[historyStack.length-1]) historyStack.push(id);
+        document.getElementById('mainNav').style.display = (id==='dashboard' || id==='reportPage') ? 'flex' : 'none';
+    }
+
+    function goBack() {
+        if(historyStack.length > 1) { historyStack.pop(); showPage(historyStack[historyStack.length-1]); }
+    }
+
+    function handleLogin() {
+        if(document.getElementById('l_mob').value === "9446841656") {
+            loadMemberData("Bharath A", "AIASG/2026/001", "Palakkad", "Solved: ശരിയാക്കിയിട്ടുണ്ട്.");
+        }
+    }
+
+    function loadMemberData(name, id, place, reply) {
+        document.getElementById('m_name').innerText = name;
+        document.getElementById('m_id').innerText = id;
+        document.getElementById('m_place').innerText = place;
+        if(reply) {
+            document.getElementById('adminReply').innerText = reply;
+            document.getElementById('solveNotice').style.display = 'block';
+        }
+        showPage('dashboard');
+    }
+
+    function adminTrigger() {
+        clickCount++;
+        if(clickCount >= 5) {
+            let p = prompt("Password:");
+            if(p === "1993") { showPage('creatorDash'); renderCreatorList(); }
+            clickCount = 0;
+        }
+        setTimeout(() => clickCount = 0, 3000);
+    }
+
+    function renderCreatorList() {
+        const pList = document.getElementById('pendingList');
+        const sList = document.getElementById('solvedList');
+        // ഇതാണ് പരാതികൾ കാണിക്കുന്ന ലിസ്റ്റ്
+        pList.innerHTML = `<div class="complaint-item"><b>Suresh</b><p>Salary delay</p>
+            <input type="text" id="r_1" placeholder="Reply"><button onclick="alert('Solved')">Solve</button></div>`;
+        sList.innerHTML = `<div class="complaint-item solved"><b>Anil</b><p>PF Issue</p><small>Reply: Done</small></div>`;
+    }
+
+    function submitComplaint() { alert("പരാതി ലഭിച്ചു!"); showPage('dashboard'); }
+    function calcWage() { 
+        let d = document.getElementById('w_days').value;
+        if(d) document.getElementById('w_res').innerText = "₹" + (d * 675);
+    }
+</script>
+</body>
+              </html>
+              
