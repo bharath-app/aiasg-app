@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIASGTWF Association</title>
+    <style>
+        :root { --p: #1a237e; --s: #28a745; --d: #dc3545; --accent: #ffd700; --sky: #03a9f4; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f0f2f5; text-align: center; color: #333; }
+        .box { background: white; max-width: 450px; margin: 15px auto; padding: 25px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border-top: 5px solid var(--accent); position: relative; }
+        input, select, textarea { width: 100%; padding: 14px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 15px; box-sizing: border-box; }
+        .btn { width: 100%; padding: 16px; border: none; border-radius: 12px; color: white; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; display: block; transition: 0.3s; text-decoration: none; }
+        .btn-p { background: var(--p); } .btn-s { background: var(--s); } .btn-d { background: var(--d); } .btn-b { background: #6c757d; } .btn-sky { background: var(--sky); }
+        .hidden { display: none; }
+        .logo-main { width: 110px; margin-bottom: 15px; cursor: pointer; }
+        .card { background: #f9f9f9; padding: 15px; margin: 10px 0; border-radius: 12px; text-align: left; border-left: 5px solid var(--p); font-size: 14px; }
+        .service-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .notif-bar { background: #fff9c4; border: 1px solid #fbc02d; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 12px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    </style>
+</head>
+<body>
+
+<div class="box" id="homePage">
+    <img src="logo.png" class="logo-main" onclick="adminTrigger()" onerror="this.src='https://via.placeholder.com/120?text=LOGO'">
+    <h2 style="color: var(--p); margin: 0;">AIASGTWF ASSOCIATION</h2>
+    <p style="color: var(--accent); font-weight: bold;">"UNITY IS STRENGTH"</p>
+    <hr>
+    <button class="btn btn-p" onclick="show('memberLogin')">Member Login</button>
+    <button class="btn btn-s" onclick="show('regForm')">New Registration</button>
+</div>
+
+<div class="box hidden" id="memberLogin">
+    <h3>Member Login</h3>
+    <input type="text" id="l_id" placeholder="ID (e.g., ID-101)">
+    <input type="number" id="l_mob" placeholder="Mobile Number">
+    <button class="btn btn-p" onclick="memberAuth()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="memberDash">
+    <div id="m_notif" class="notif-bar hidden"></div>
+    <h3 id="m_welcome">Welcome</h3>
+    
+    <div style="background: #ffebee; padding: 10px; border-radius: 15px; border: 1px solid var(--d);">
+        <p style="color: var(--d); font-weight: bold; margin: 5px 0;">EMERGENCY SOS</p>
+        <button class="btn btn-d" onclick="window.location.href='tel:9446841656'">Contact Association</button>
+    </div>
+
+    <div class="service-grid">
+        <a href="https://register.eshram.gov.in/" target="_blank" class="btn btn-sky" style="font-size: 13px;">E-Shram Register</a>
+        <a href="https://passbook.epfindia.gov.in/MemberPassBook/Login" target="_blank" class="btn btn-p" style="font-size: 13px;">PF Balance Check</a>
+    </div>
+
+    <div id="m_details" class="card"></div>
+    
+    <div class="card">
+        <h4>പരാതി സമർപ്പിക്കാൻ</h4>
+        <textarea id="m_comp" placeholder="പരാതി ഇവിടെ എഴുതുക..." rows="3"></textarea>
+        <button class="btn btn-p" onclick="sendComplaint()">Submit</button>
+    </div>
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<div class="box hidden" id="regForm">
+    <h3>Registration</h3>
+    <input type="text" id="r_name" placeholder="Name">
+    <input type="number" id="r_mob" placeholder="Mobile">
+    <input type="text" id="r_agency" placeholder="Agency">
+    <button class="btn btn-s" onclick="submitRegistration()">Pay & Join</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="adminLogin">
+    <h3>Creator Login</h3>
+    <input type="password" id="a_pass" placeholder="Password (1993)">
+    <button class="btn btn-p" onclick="adminAuth()">Login</button>
+    <button class="btn btn-b" onclick="show('homePage')">Back</button>
+</div>
+
+<div class="box hidden" id="adminDash">
+    <h3>Admin Dashboard</h3>
+    <button class="btn btn-d" onclick="window.location.href='tel:112'">SOS 112</button>
+    <div id="admin_content" style="text-align: left; margin-top: 15px;"></div>
+    <button class="btn btn-b" onclick="show('homePage')">Logout</button>
+</div>
+
+<script>
+    let appData = JSON.parse(localStorage.getItem('AIASG_V19_DB')) || {
+        members: { "ID-101": { id: "ID-101", name: "Bharath", mob: "9446841656", salary: "15000", agency: "Safeguard", status: "Active" } },
+        complaints: [],
+        notifs: {}
+    };
+
+    let curUser = null;
+    let clickCount = 0;
+
+    function show(id) {
+        document.querySelectorAll('.box').forEach(b => b.classList.add('hidden'));
+        document.getElementById(id).classList.remove('hidden');
+    }
+
+    function adminTrigger() {
+        clickCount++;
+        if(clickCount >= 5) { show('adminLogin'); clickCount = 0; }
+        setTimeout(() => clickCount = 0, 3000);
+    }
+
+    function memberAuth() {
+        let id = document.getElementById('l_id').value.trim();
+        let mob = document.getElementById('l_mob').value.trim();
+        let user = appData.members[id];
+        if(user && user.mob === mob) {
+            curUser = user;
+            document.getElementById('m_welcome').innerText = "Hello, " + curUser.name;
+            document.getElementById('m_details').innerHTML = `<b>ID:</b> ${curUser.id}<br><b>Salary:</b> ${curUser.salary}<br><b>Agency:</b> ${curUser.agency}`;
+            show('memberDash');
+        } else alert("Invalid ID or Mobile!");
+    }
+
+    function adminAuth() {
+        if(document.getElementById('a_pass').value === "1993") { show('adminDash'); }
+        else alert("Wrong Password!");
+    }
+
+    function sendComplaint() {
+        alert("പരാതി സമർപ്പിച്ചു. ഞങ്ങളുടെ പ്രതിനിധി ഉടനെ ബന്ധപ്പെടും.");
+        show('homePage');
+    }
+
+    function submitRegistration() {
+        window.location.href = "upi://pay?pa=bharath199389@oksbi&pn=Bharath&am=200&cu=INR";
+    }
+</script>
+</body>
+      </html>
+                         
