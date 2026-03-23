@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AIASGTWF Welfare Foundation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --primary: #1a237e; --secondary: #2e7d32; --accent: #ffd700; --danger: #d32f2f; --bg: #f4f7f9; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Poppins', sans-serif; margin: 0; background: var(--bg); padding-bottom: 80px; }
+        header { background: var(--primary); color: white; padding: 15px; text-align: center; border-radius: 0 0 25px 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 1001; }
+        .logo-img { width: 45px; height: 45px; background: white; border-radius: 50%; padding: 2px; border: 2px solid var(--accent); cursor: pointer; }
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+        .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; font-size: 14px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-p { background: var(--primary); color: white; }
+        .btn-s { background: var(--secondary); color: white; }
+        .btn-edit { background: #ff9800; color: white; padding: 5px 10px; font-size: 11px; border-radius: 5px; }
+        .btn-reply { background: var(--primary); color: white; padding: 5px 10px; font-size: 11px; border-radius: 5px; }
+        .admin-tab { display: flex; background: #eee; border-radius: 10px; overflow: hidden; margin-bottom: 15px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; }
+        .tab-btn.active { background: var(--primary); color: white; }
+        .list-item { border-bottom: 1px solid #eee; padding: 12px 0; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .action-btns { display: flex; gap: 10px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+<header>
+    <div style="width:45px;"></div>
+    <img src="logo.png" class="logo-img" onclick="adminTrigger()" onerror="this.src='https://via.placeholder.com/45'">
+    <div style="width:45px;"></div>
+</header>
+
+<div class="container">
+    <div id="home" class="page active">
+        <div class="card" style="text-align:center;">
+            <h3>AIASGTWF Foundation</h3>
+            <button class="btn btn-p" onclick="showPage('login')">മെമ്പർ ലോഗിൻ</button>
+            <button class="btn btn-s" style="margin-top:12px;" onclick="showPage('register')">പുതിയ രജിസ്ട്രേഷൻ</button>
+        </div>
+    </div>
+
+    <div id="register" class="page">
+        <div class="card">
+            <h3 id="regTitle">രജിസ്റ്റർ ചെയ്യുക</h3>
+            <input type="hidden" id="edit_id">
+            <input type="text" id="r_name" placeholder="പേര്">
+            <input type="number" id="r_mob" placeholder="മൊബൈൽ">
+            <input type="text" id="r_place" placeholder="സ്ഥലം">
+            <input type="text" id="r_agency" placeholder="ഏജൻസി">
+            <button class="btn btn-p" id="regBtn" onclick="saveToFirebase()">സേവ് ചെയ്യുക</button>
+        </div>
+    </div>
+
+    <div id="creatorDash" class="page">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <h3 style="margin:0;">ക്രിയേറ്റർ റൂം</h3>
+            <button class="btn btn-s" style="width:auto; padding:8px 15px; font-size:12px;" onclick="openAdd()">+ ചേർക്കുക</button>
+        </div>
+        <div class="admin-tab">
+            <button class="tab-btn active" id="tb1" onclick="switchTab(1)">മെമ്പർ ലിസ്റ്റ്</button>
+            <button class="tab-btn" id="tb2" onclick="switchTab(2)">പരാതികൾ</button>
+        </div>
+        <div id="adC1" class="card"><div id="fullMemList">ലോഡ് ചെയ്യുന്നു...</div></div>
+        <div id="adC2" class="card" style="display:none;"><div id="fullCompList">ലോഡ് ചെയ്യുന്നു...</div></div>
+    </div>
+
+    <div id="login" class="page"><div class="card"><h3>ലോഗിൻ</h3><input type="number" id="l_mob" placeholder="മൊബൈൽ"><button class="btn btn-p" onclick="alert('ലോഗിൻ സെറ്റ് ചെയ്തിട്ടില്ല')">Login</button></div></div>
+</div>
+
+<script>
+    const dbURL = "https://aiasgtwf-app-715f2-default-rtdb.firebaseio.com"; 
+    let clicks = 0;
+
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function openAdd() {
+        document.getElementById('regTitle').innerText = "പുതിയ അംഗത്തെ ചേർക്കുക";
+        document.getElementById('edit_id').value = "";
+        document.getElementById('r_name').value = "";
+        document.getElementById('r_mob').value = "";
+        showPage('register');
+    }
+
+    async function saveToFirebase() {
+        const id = document.getElementById('edit_id').value;
+        const data = {
+            name: document.getElementById('r_name').value,
+            mob: document.getElementById('r_mob').value,
+            place: document.getElementById('r_place').value,
+            agency: document.getElementById('r_agency').value
+        };
+
+        const method = id ? 'PATCH' : 'POST';
+        const url = id ? `${dbURL}/members/${id}.json` : `${dbURL}/members.json`;
+
+        await fetch(url, { method: method, body: JSON.stringify(data) });
+        alert("വിജയകരമായി സേവ് ചെയ്തു!");
+        showPage('creatorDash');
+        loadData();
+    }
+
+    async function loadData() {
+        const res = await fetch(`${dbURL}/members.json`);
+        const data = await res.json();
+        let html = "";
+        for(let key in data) {
+            html += `<div class="list-item">
+                <b>${data[key].name}</b> (${data[key].mob})<br>
+                <div class="action-btns">
+                    <button class="btn-edit" onclick="editMember('${key}')">എഡിറ്റ്</button>
+                    <button class="btn-edit" style="background:red" onclick="deleteItem('members','${key}')">ഡിലീറ്റ്</button>
+                </div>
+            </div>`;
+        }
+        document.getElementById('fullMemList').innerHTML = html || "മെമ്പർമാർ ഇല്ല.";
+        
+        const res2 = await fetch(`${dbURL}/complaints.json`);
+        const data2 = await res2.json();
+        let chtml = "";
+        for(let key in data2) {
+            chtml += `<div class="list-item">
+                <b>പരാതി:</b> ${data2[key].msg}<br>
+                <div class="action-btns">
+                    <button class="btn-reply" onclick="replyMsg('${data2[key].mob}')">റിപ്ലൈ</button>
+                </div>
+            </div>`;
+        }
+        document.getElementById('fullCompList').innerHTML = chtml || "പരാതികൾ ഇല്ല.";
+    }
+
+    async function editMember(key) {
+        const res = await fetch(`${dbURL}/members/${key}.json`);
+        const d = await res.json();
+        document.getElementById('edit_id').value = key;
+        document.getElementById('r_name').value = d.name;
+        document.getElementById('r_mob').value = d.mob;
+        document.getElementById('regTitle').innerText = "എഡിറ്റ് മെമ്പർ";
+        showPage('register');
+    }
+
+    function replyMsg(mob) {
+        const msg = prompt("മറുപടി നൽകുക:");
+        if(msg) window.open(`https://wa.me/91${mob}?text=${msg}`);
+    }
+
+    async function deleteItem(folder, key) {
+        if(confirm("ഡിലീറ്റ് ചെയ്യണോ?")) {
+            await fetch(`${dbURL}/${folder}/${key}.json`, { method: 'DELETE' });
+            loadData();
+        }
+    }
+
+    function switchTab(n) {
+        document.getElementById('adC1').style.display = n===1?'block':'none';
+        document.getElementById('adC2').style.display = n===2?'block':'none';
+        document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active', i+1===n));
+    }
+
+    function adminTrigger() {
+        clicks++;
+        if(clicks >= 5) {
+            if(prompt("Password:") === "1993") { showPage('creatorDash'); loadData(); }
+            clicks = 0;
+        }
+    }
+</script>
+</body>
+                                             </html>
+  
